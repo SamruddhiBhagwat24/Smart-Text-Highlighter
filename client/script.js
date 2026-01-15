@@ -11,6 +11,9 @@ const styleToggle = document.getElementById("styleToggle");
 /* Store highlights so style can change without re-fetch */
 let currentHighlights = [];
 
+/* Prevent multiple rapid clicks */
+let lastRequestTime = 0;
+
 /* ------------------------------
    Word / Character Counter
 --------------------------------*/
@@ -22,7 +25,7 @@ input.addEventListener("input", () => {
 });
 
 /* ------------------------------
-   Render Highlights (Reusable)
+   Render Highlights
 --------------------------------*/
 function renderHighlights(highlights) {
   output.innerHTML = "";
@@ -36,29 +39,35 @@ function renderHighlights(highlights) {
 }
 
 /* ------------------------------
-   Highlight Button Click
+   Highlight Button (FINAL)
 --------------------------------*/
 btn.addEventListener("click", async () => {
-  const text = input.value.trim().slice(0, 1500); // limit size for speed
+  const now = Date.now();
 
-  output.innerHTML = "";
-  results.classList.add("hidden");
+  // ⛔ debounce (5 sec)
+  if (now - lastRequestTime < 5000) return;
+  lastRequestTime = now;
 
+  const text = input.value.trim().slice(0, 1500);
   if (!text) {
     alert("Please enter text");
     return;
   }
 
-  loader.classList.remove("hidden");
   btn.disabled = true;
+  loader.classList.remove("hidden");
+  results.classList.add("hidden");
+  output.innerHTML = "";
 
   try {
-    const res = await fetch("https://smart-text-highlighter-74ljmsbl-samruddhis-projects-b41c1ebc.vercel.app/highlight", {
-
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
+    const res = await fetch(
+      "https://smart-text-highlighter-api.vercel.app/highlight",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      }
+    );
 
     const data = await res.json();
 
@@ -67,10 +76,11 @@ btn.addEventListener("click", async () => {
     results.classList.remove("hidden");
 
     if (data.success && data.highlights.length) {
-      currentHighlights = data.highlights; // store once
+      currentHighlights = data.highlights;
       renderHighlights(currentHighlights);
     } else {
-      output.innerHTML = "<p class='no-data'>No important highlights found.</p>";
+      output.innerHTML =
+        "<p class='no-data'>No important highlights found.</p>";
     }
 
   } catch (err) {
@@ -82,7 +92,7 @@ btn.addEventListener("click", async () => {
 });
 
 /* ------------------------------
-   Change Highlight Style Instantly
+   Change Highlight Style
 --------------------------------*/
 styleToggle.addEventListener("change", () => {
   if (currentHighlights.length) {
@@ -96,10 +106,9 @@ styleToggle.addEventListener("change", () => {
 copyBtn.addEventListener("click", () => {
   if (!currentHighlights.length) return;
 
-  const text = currentHighlights.join("\n");
-  navigator.clipboard.writeText(text);
-
+  navigator.clipboard.writeText(currentHighlights.join("\n"));
   copyBtn.textContent = "✅ Copied";
+
   setTimeout(() => {
     copyBtn.textContent = "📋 Copy";
   }, 1500);
@@ -114,65 +123,4 @@ themeToggle.addEventListener("click", () => {
     document.body.classList.contains("dark")
       ? "☀️ Light"
       : "🌙 Dark";
-});
-// ------------------------------
-// Prevent multiple rapid clicks
-// ------------------------------
-
-let lastRequestTime = 0;
-
-btn.addEventListener("click", async () => {
-  const now = Date.now();
-
-  // ⛔ Debounce: block clicks within 5 seconds
-  if (now - lastRequestTime < 5000) {
-    return;
-  }
-  lastRequestTime = now;
-
-  const text = input.value.trim();
-  if (!text) {
-    alert("Please enter text");
-    return;
-  }
-
-  // 🔒 Disable button immediately
-  btn.disabled = true;
-
-  loader.classList.remove("hidden");
-  results.classList.add("hidden");
-
-  try {
-    const res = await fetch("http://localhost:5001/highlight", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-
-    const data = await res.json();
-
-    loader.classList.add("hidden");
-    btn.disabled = false; // ✅ re-enable only after response
-    results.classList.remove("hidden");
-
-    output.innerHTML = "";
-
-    if (data.success && data.highlights.length) {
-      data.highlights.forEach((item) => {
-        const div = document.createElement("div");
-        div.className = `highlight-box ${styleToggle.value}`;
-        div.textContent = item;
-        output.appendChild(div);
-      });
-    } else {
-      output.innerHTML =
-        "<p class='no-data'>No important highlights found.</p>";
-    }
-
-  } catch (err) {
-    console.error(err);
-    loader.classList.add("hidden");
-    btn.disabled = false; // ✅ re-enable on error
-    alert("Server error");
-  }
 });
