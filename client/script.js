@@ -53,7 +53,8 @@ btn.addEventListener("click", async () => {
   btn.disabled = true;
 
   try {
-    const res = await fetch("http://localhost:5001/highlight", {
+    const res = await fetch("https://smart-text-highlighter-74ljmsbl-samruddhis-projects-b41c1ebc.vercel.app/highlight", {
+
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text })
