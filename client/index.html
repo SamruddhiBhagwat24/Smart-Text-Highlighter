@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Text Highlighter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Header -->
+    <h1 class="app-title">Smart Text Highlighter</h1>
+    <p class="tagline">✨ Smart highlights. Instant insights.</p>
+
+    <!-- Dark Mode Toggle -->
+    <button id="themeToggle" class="theme-toggle">🌙 Dark</button>
+
+    <!-- Highlight Style Toggle -->
+    <select id="styleToggle" class="style-toggle">
+      <option value="marker">🟨 Marker</option>
+      <option value="box">🟦 Box</option>
+      <option value="underline">✍️ Underline</option>
+    </select>
+
+    <!-- Input -->
+    <textarea
+      id="inputText"
+      placeholder="Paste your paragraph here..."
+    ></textarea>
+
+    <!-- Word / Character Counter -->
+    <div id="counter" class="counter">
+      Words: 0 | Characters: 0
+    </div>
+
+    <!-- Action Button -->
+    <button id="highlightBtn" type="button">Highlight</button>
+
+    <!-- Loader -->
+    <div id="loader" class="loader hidden">
+      <div class="spinner"></div>
+      <p>Analyzing text...</p>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="results hidden">
+      <div class="results-header">
+        <h3 class="insights-title">✨ Essential Insights</h3>
+        <button id="copyBtn" class="copy-btn">📋 Copy</button>
+      </div>
+      <div id="output"></div>
+    </div>
+
+  </div>
+
+  <!-- JS -->
+  <script src="script.js" defer></script>
+</body>
+</html>
