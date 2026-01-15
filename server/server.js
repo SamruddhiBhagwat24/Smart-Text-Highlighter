@@ -152,6 +152,9 @@ Paragraph:
     });
   }
 });
+app.get("/", (req, res) => {
+  res.send("🚀 Smart Text Highlighter API is running!");
+});
 
 // Start backend server on port 5001
 app.listen(5001, () => {
